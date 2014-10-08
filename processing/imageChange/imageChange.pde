@@ -68,6 +68,29 @@ void serialEvent( Serial myPort)
               background(bg);
               delay(10);
             }
+            else if (val.equals("b"))                //if we get 'b' from arduino to move backward  
+            {
+              //println(val);
+              if (next>1)                      //28 images in the sequence 
+              {
+                next-=1;
+              }
+              else
+              {
+                next=28;
+              }
+              
+              if (next<10) 
+              {
+                bg = loadImage("image00"+next+".jpg");    //for images 1 to 9
+              } 
+              else
+              {
+                bg = loadImage("image0"+next+".jpg");      //for images 10 to 28
+              }  
+              background(bg);
+              delay(10);
+            }
         myPort.write('1');        //send a 1
         println("1");
       }
