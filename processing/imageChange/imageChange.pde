@@ -1,3 +1,5 @@
+//https://learn.sparkfun.com/tutorials/connecting-arduino-to-processing
+
 import processing.serial.*;      //import the Serial library
 Serial myPort;                   //the Serial port object
 String val;
