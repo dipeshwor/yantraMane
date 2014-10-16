@@ -971,62 +971,48 @@ void loop()
   delay(5);
   */
   // --------------------------------------------------------
-// The Slide Rule!
+// Spin Conditions
 //
 //Conditions that will pass on a certain value to jump in between
-//slide presentations on spinning the spindle-wheel by hand,
+//slide presentations on spinning a wheel by hand,
 //based on orientations of the MPU6050 sensor. A clockwise 
 //rotation about the Z-axis for every 180 degrees will send a 
-//signal to proceed to the next slide - in this case - light 
-//up a RED LED. An anti-clockwise rotation about the Z-axis for 
+//signal to proceed to the next slide - in this case - send a 
+//character "f" to the computer via XBEE modules. 
+//An anti-clockwise rotation about the Z-axis for 
 //every 180 degrees will send a signal to go back to the 
-//previous slide- in this case - light up a BLUE LED. In other
+//previous slide- in this case -send a character
+// "f" to the computer via XBEE modules. In other
 // words, every 180 degree turn indicates one action. There is 
 // a small gap of 30 degrees per action.
   
-if ( angle_z > 0 ) {
-if (angle_z > 180) {
-  set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0);
-  flag = 1;
+if ( angle_z > 0 ) { // check to see if the wheel has spun in the clockwise direction
+if (angle_z > 180) { // check to see if the wheel has rotated beyond 180 degrees
+  set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0); // reset the sensor thus resetting entire values back to zero
+  flag = 1; // set flag to 1
 }
-if (unfiltered_gyro_angle_z > 30) {
-if (flag == 1) {
-  flag = 0;
-    Serial.println("f"); 
-    analogWrite(redLEDAnode, 50);
-analogWrite(redLEDCathode, 0);
-analogWrite(blueLEDAnode, 0);
-analogWrite(blueLEDCathode, 0);  
+if (unfiltered_gyro_angle_z > 30) { //30 degree interval gap between sending data values
+if (flag == 1) { //check the flag
+  flag = 0; // set the flag back to zero. Limit serial data to one value per 180 degree rotation
+    Serial.println("f"); // send a character to the computer via an XBEE module
 }
 }
-  else{
-        analogWrite(redLEDAnode, 0);
-analogWrite(redLEDCathode, 0);
-analogWrite(blueLEDAnode, 0);
-analogWrite(blueLEDCathode, 0);
+  else{ // do nothing if the condition is not satisfied
   }
 }
   
-  else if ( angle_z < 0 ) {
-  if (angle_z < -180)   {
-    set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0);
-    flag = 2;
+  else if ( angle_z < 0 ) { // check to see if the wheel has spun in the anti-clockwise direction 
+  if (angle_z < -180)   { // check to see if the wheel has rotated beyond 180 degrees
+    set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0); // reset the valyes thus resetting entire values back to zero
+    flag = 2; // set the flag to 2
   }
-if (unfiltered_gyro_angle_z < -30) {
-  if (flag == 2) {
-     flag = 0;
-     Serial.println("b");  
-  analogWrite(redLEDAnode, 0);
-analogWrite(redLEDCathode, 0);
-analogWrite(blueLEDAnode, 50);
-analogWrite(blueLEDCathode, 0);
+if (unfiltered_gyro_angle_z < -30) { // 30 degree interval gap between sending serial values
+  if (flag == 2) { // check the flag
+     flag = 0; // set the flag to zero. Limit the serial data to one value per 180 degree rotation
+     Serial.println("b");  // send a character to the computer via an XBEE module
   }
 }
-  else{
-        analogWrite(redLEDAnode, 0);
-analogWrite(redLEDCathode, 0);
-analogWrite(blueLEDAnode, 0);
-analogWrite(blueLEDCathode, 0);
+  else{ // do nothing if the condition is not satisfied
   }
 }
 }
