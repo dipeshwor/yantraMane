@@ -987,14 +987,14 @@ void loop()
 // a small gap of 30 degrees per action.
   
 if ( angle_z > 0 ) { // check to see if the wheel has spun in the clockwise direction
-if (angle_z > 180) { // check to see if the wheel has rotated beyond 180 degrees
+if (angle_z > 5) { // check to see if the wheel has rotated beyond 180 degrees
   set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0); // reset the sensor thus resetting entire values back to zero
   flag = 1; // set flag to 1
 }
-if (unfiltered_gyro_angle_z > 30) { //30 degree interval gap between sending data values
+if (unfiltered_gyro_angle_z > 5) { //30 degree interval gap between sending data values
 if (flag == 1) { //check the flag
   flag = 0; // set the flag back to zero. Limit serial data to one value per 180 degree rotation
-    Serial.println("f"); // send a character to the computer via an XBEE module
+    Serial.print("f"); // send a character to the computer via an XBEE module
 }
 }
   else{ // do nothing if the condition is not satisfied
@@ -1002,14 +1002,14 @@ if (flag == 1) { //check the flag
 }
   
   else if ( angle_z < 0 ) { // check to see if the wheel has spun in the anti-clockwise direction 
-  if (angle_z < -180)   { // check to see if the wheel has rotated beyond 180 degrees
+  if (angle_z < -5)   { // check to see if the wheel has rotated beyond 180 degrees
     set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0); // reset the valyes thus resetting entire values back to zero
     flag = 2; // set the flag to 2
   }
-if (unfiltered_gyro_angle_z < -30) { // 30 degree interval gap between sending serial values
+if (unfiltered_gyro_angle_z < -5) { // 30 degree interval gap between sending serial values
   if (flag == 2) { // check the flag
      flag = 0; // set the flag to zero. Limit the serial data to one value per 180 degree rotation
-     Serial.println("b");  // send a character to the computer via an XBEE module
+     Serial.print("b");  // send a character to the computer via an XBEE module
   }
 }
   else{ // do nothing if the condition is not satisfied
