@@ -973,44 +973,45 @@ void loop()
   // --------------------------------------------------------
 // Spin Conditions
 //
-//Conditions that will pass on a certain value to jump in between
-//slide presentations on spinning a wheel by hand,
-//based on orientations of the MPU6050 sensor. A clockwise 
-//rotation about the Z-axis for every 180 degrees will send a 
-//signal to proceed to the next slide - in this case - send a 
-//character "f" to the computer via XBEE modules. 
-//An anti-clockwise rotation about the Z-axis for 
-//every 180 degrees will send a signal to go back to the 
-//previous slide- in this case -send a character
-// "f" to the computer via XBEE modules. In other
-// words, every 180 degree turn indicates one action. There is 
-// a small gap of 30 degrees per action.
-  
-if ( angle_z > 0 ) { // check to see if the wheel has spun in the clockwise direction
-if (angle_z > 5) { // check to see if the wheel has rotated beyond 180 degrees
-  set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0); // reset the sensor thus resetting entire values back to zero
-  flag = 1; // set flag to 1
-}
-if (unfiltered_gyro_angle_z > 5) { //30 degree interval gap between sending data values
-if (flag == 1) { //check the flag
-  flag = 0; // set the flag back to zero. Limit serial data to one value per 180 degree rotation
-    Serial.print("f"); // send a character to the computer via an XBEE module
-}
+// Conditions that will pass on certain characters over
+// XBEE modules on spinning the prayer wheel, based on
+// the orientations of the MPU6050 sensor. A clockwise
+// (forward) rotation about the Z-axis will send an "f"
+// to the receving end of the XBEE pair. This value is 
+// recieved by the processing sketch that will upon then 
+// load a sequence of images to creating a piece of 
+// animation. An anti-clockwise (reverse) rotation will
+// send a "b" and in a similar way, will load the same 
+// animation in reverse. The default rate of sending the
+// characters is per every rotation of the prayer wheel 
+// through 5 degrees. A 5 degree interval follows this 
+// routine during which no data is sent.
+
+if ( angle_z < 0 ) { // check to see if the wheel has spun in the clockwise (forward) direction 
+  if (angle_z < -5)   { // check to see if the wheel has rotated beyond 5 degrees
+    set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0); // reset the values thus resetting entire values back to zero
+    flag = 2; // set up a flag to notify of a 5 degree clockwise turn
+  }
+if (unfiltered_gyro_angle_z < -5) { // a 5 degree interval between sending serial values
+  if (flag == 2) { // check the flag
+     flag = 0; // set the flag to zero. This will help to limit the serial data to one value per every 5 degree rotation
+     Serial.print("f");  // send a character to the computer via an XBEE module
+  }
 }
   else{ // do nothing if the condition is not satisfied
   }
 }
   
-  else if ( angle_z < 0 ) { // check to see if the wheel has spun in the anti-clockwise direction 
-  if (angle_z < -5)   { // check to see if the wheel has rotated beyond 180 degrees
-    set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0); // reset the valyes thus resetting entire values back to zero
-    flag = 2; // set the flag to 2
-  }
-if (unfiltered_gyro_angle_z < -5) { // 30 degree interval gap between sending serial values
-  if (flag == 2) { // check the flag
-     flag = 0; // set the flag to zero. Limit the serial data to one value per 180 degree rotation
-     Serial.print("b");  // send a character to the computer via an XBEE module
-  }
+if ( angle_z > 0 ) { // check to see if the wheel has spun in the anti-clockwise (reverse) direction
+if (angle_z > 5) { // check to see if the wheel has rotated beyond 5 degrees
+  set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0); // reset the sensor thus resetting entire values back to zero
+  flag = 1; // set up a flag to notify of a 5 degree anti-clockwise (reverse) turn
+}
+if (unfiltered_gyro_angle_z > 5) { //5 degree interval gap between sending data values
+if (flag == 1) { //check the flag
+  flag = 0; // set the flag to zero. This will help to limit the serial data to one value per every 5 degree rotation
+    Serial.print("b"); // send a character to the computer via an XBEE module
+}
 }
   else{ // do nothing if the condition is not satisfied
   }
