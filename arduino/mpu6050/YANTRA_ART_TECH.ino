@@ -1,42 +1,14 @@
-
-// MPU-6050 Accelerometer + Gyro
-// -----------------------------
-//
-// By arduino.cc user "Krodal".
-// June 2012
-// Open Source / Public Domain
-//
-// Using Arduino 1.0.1
-// It will not work with an older version, 
-// since Wire.endTransmission() uses a parameter 
-// to hold or release the I2C bus.
-//
-// Documentation:
-// - The InvenSense documents:
-//   - "MPU-6000 and MPU-6050 Product Specification",
-//     PS-MPU-6000A.pdf
-//   - "MPU-6000 and MPU-6050 Register Map and Descriptions",
-//     RM-MPU-6000A.pdf or RS-MPU-6000A.pdf
-//   - "MPU-6000/MPU-6050 9-Axis Evaluation Board User Guide"
-//     AN-MPU-6000EVB.pdf
-// 
-// The accuracy is 16-bits.
-//
-// Temperature sensor from -40 to +85 degrees Celsius
-//   340 per degrees, -512 at 35 degrees.
-//
-// At power-up, all registers are zero, except these two:
-//      Register 0x6B (PWR_MGMT_2) = 0x40  (I read zero).
-//      Register 0x75 (WHO_AM_I)   = 0x68.
-// 
+// YantraMane Code
+// Passing on values based on readings of the MPU6050 AMU
+// upon the rotation of the "mane" aka "Prayer-Wheel". An 
+// animation is projected on the screen that plays on the 
+// basis of incoming readings.
 
 #include <Wire.h>
 
-
-// The name of the sensor is "MPU-6050".
-// For program code, I omit the '-', 
-// therefor I use the name "MPU6050....".
-
+// Unlike other sensors, we need to define the register names
+// in order to get readings from the on board gyroscope and 
+// accelerometer.
 
 // Register names according to the datasheet.
 // According to the InvenSense document 
@@ -45,7 +17,9 @@
 // at 0x02 ... 0x18, but according other information 
 // the registers in that unknown area are for gain 
 // and offsets.
-// 
+// Defnitions start at line 23 and end at line 595
+
+
 #define MPU6050_AUX_VDDIO          0x01   // R/W
 #define MPU6050_SMPLRT_DIV         0x19   // R/W
 #define MPU6050_CONFIG             0x1A   // R/W
@@ -776,40 +750,18 @@ void calibrate_sensors() {
   //Serial.println("Finishing Calibration");
 }
 
-#define redLEDAnode 10
-#define redLEDCathode 11
-#define blueLEDAnode 5
-#define blueLEDCathode 6
 
 int flag = 0;
-char buffer[5];
 
 void setup()
 {      
   int error;
   uint8_t c;
 
-  pinMode(redLEDAnode, OUTPUT);
-  pinMode(redLEDCathode, OUTPUT);
-    pinMode(blueLEDAnode, OUTPUT);
-  pinMode(blueLEDCathode, OUTPUT);
-
   Serial.begin(9600);
-
-  /*
-  Serial.println(F("InvenSense MPU-6050"));
-  Serial.println(F("June 2012"));
-  */
   // Initialize the 'Wire' class for the I2C-bus.
   Wire.begin();
 
-
-  // default at power-up:
-  //    Gyro at 250 degrees second
-  //    Acceleration at 2g
-  //    Clock source at internal 8MHz
-  //    The device is in sleep mode.
-  //
 
   error = MPU6050_read (MPU6050_WHO_AM_I, &c, 1);
   /*
@@ -846,56 +798,13 @@ void loop()
   int error;
   double dT;
   accel_t_gyro_union accel_t_gyro;
-
-  /*
-  Serial.println(F(""));
-  Serial.println(F("MPU-6050"));
-  */
   
   // Read the raw values.
   error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
   
   // Get the time of reading for rotation computations
   unsigned long t_now = millis();
-   
-/*
-  Serial.print(F("Read accel, temp and gyro, error = "));
-  Serial.println(error,DEC);
-  
-
-  // Print the raw acceleration values
-  Serial.print(F("accel x,y,z: "));
-  Serial.print(accel_t_gyro.value.x_accel, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.y_accel, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.z_accel, DEC);
-  Serial.println(F(""));
-*/ 
-
-  // The temperature sensor is -40 to +85 degrees Celsius.
-  // It is a signed integer.
-  // According to the datasheet: 
-  //   340 per degrees Celsius, -512 at 35 degrees.
-  // At 0 degrees: -512 - (340 * 35) = -12412
-/*  
-  Serial.print(F("temperature: "));
-  dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
-  Serial.print(dT, 3);
-  Serial.print(F(" degrees Celsius"));
-  Serial.println(F(""));
-  
-
-  // Print the raw gyro values.
-  Serial.print(F("raw gyro x,y,z : "));
-  Serial.print(accel_t_gyro.value.x_gyro, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.y_gyro, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.z_gyro, DEC);
-  Serial.print(F(", "));
-  Serial.println(F(""));
-*/
+ 
 
   // Convert gyro values to degrees/sec
   float FS_SEL = 131;
@@ -943,33 +852,7 @@ void loop()
   
   // Update the saved data with the latest values
   set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z);
-  /*
-  // Send the data to the serial port
-  Serial.print(F("DEL:"));              //Delta T
-  Serial.print(dt, DEC);
-  Serial.print(F("#ACC:"));              //Accelerometer angle
-  Serial.print(accel_angle_x, 2);
-  Serial.print(F(","));
-  Serial.print(accel_angle_y, 2);
-  Serial.print(F(","));
-  Serial.print(accel_angle_z, 2);
-  Serial.print(F("#GYR:"));
-  Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
-  Serial.print(F(","));
-  Serial.print(unfiltered_gyro_angle_y, 2);
-  Serial.print(F(","));
-  Serial.print(unfiltered_gyro_angle_z, 2);
-  Serial.print(F("#FIL:"));             //Filtered angle
-  Serial.print(angle_x, 2);
-  Serial.print(F(","));
-  Serial.print(angle_y, 2);
-  Serial.print(F(","));
-  Serial.print(angle_z, 2);
-  Serial.println(F(""));
   
-  // Delay so we don't swamp the serial port
-  delay(5);
-  */
   // --------------------------------------------------------
 // Spin Conditions
 //
@@ -1113,5 +996,3 @@ int MPU6050_write_reg(int reg, uint8_t data)
 
   return (error);
 }
-
-
