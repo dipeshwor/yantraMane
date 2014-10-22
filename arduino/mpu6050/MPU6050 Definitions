@@ -9,7 +9,6 @@
 // at 0x02 ... 0x18, but according other information 
 // the registers in that unknown area are for gain 
 // and offsets.
-// Defnitions start at line 23 and end at line 595
 
 
 #define MPU6050_AUX_VDDIO          0x01   // R/W
